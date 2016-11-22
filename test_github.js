@@ -1,1 +1,1 @@
-alart("Hello GitHub");
+alart("Hello IKEMEN");
