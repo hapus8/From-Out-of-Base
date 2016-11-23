@@ -61,8 +61,8 @@ var Asset = {};
 
 // アセットの定義
 Asset.assets = [
-  { type: 'image', name: 'back', src: 'assets/back.png' },
-  { type: 'image', name: 'box', src: 'assets/box.png' }
+  { type: 'image', name: 'back', src: '../assets/back.png' },
+  { type: 'image', name: 'box', src: '../assets/box.png' }
 ];
 
 // 読み込んだ画像
