@@ -23,7 +23,7 @@ function init() {
 
 function update(timestamp) {
   var delta = 0;
-  if (lastTimestamp != null) {
+  if (lastTimestamp !== null) {
     delta = (timestamp -+ lastTimestamp) / 1000;
   }
   lastTimestamp = timestamp;
@@ -34,7 +34,7 @@ function update(timestamp) {
   mikanX += a * delta;
   if(mikanX > 700 || mikanX < -5)
   {
-    a = a* -1
+    a = a* -1;
   }
 
   render();
@@ -51,10 +51,10 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // 背景を表示
-  ctx.drawImage(Asset.images['back'], 0, 0);
+  ctx.drawImage(Asset.images.back, 0, 0);
 
   // みかん箱を表示
-  ctx.drawImage(Asset.images['box'], mikanX, 400);
+  ctx.drawImage(Asset.images.box, mikanX, 400);
 }
 
 var Asset = {};
@@ -62,7 +62,9 @@ var Asset = {};
 // アセットの定義
 Asset.assets = [
   { type: 'image', name: 'back', src: 'assets/back.png' },
-  { type: 'image', name: 'box', src: 'assets/box.png' }
+  { type: 'image', name: 'box', src: 'assets/box.png' },
+  { type: 'image', name: 'button_flame_0', src: 'assets/Title/button_flame_0.png' },
+  { type: 'image', name: 'button_flame_1', src: 'assets/Title/button_flame_1.png' }
 ];
 
 // 読み込んだ画像
@@ -99,3 +101,43 @@ Asset._loadImage = function(asset, onLoad) {
   image.onload = onLoad;
   Asset.images[asset.name] = image;
 };
+
+
+// ryuno: マウスイベントを設定
+class Mouse {
+    constructor(){
+        this.x = 0;
+        this.y = 0;
+        this.input = {left: false, right: false};
+    }
+
+    Process(){
+        let input_x;
+        let input_y;
+        document.body.addEventListener( "click", function( e ) {
+        	// マウス位置を取得する
+        	input_x = e.pageX ;	// X座標
+        	input_y = e.pageY ;	// Y座標
+        } );
+        this.x = input_x;
+        this.y = input_y;
+    }
+}
+var mouse = new Mouse();    // マウスのインスタンス
+
+// ryuno: メイン関数
+(function (){
+    // Sceneオブジェクト
+    var scene = new TitleScene();
+
+    while(true  /*今はtrueだが、エラー処理のゲッタなどを突っ込む予定*/){
+        // マウス情報のアップデート
+        mouse.Process();
+
+        // シーンのアップデート
+        var input = scene.Process();
+        if(input !== null){
+            scene = input;
+        }
+    }
+}());
