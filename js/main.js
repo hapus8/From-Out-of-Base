@@ -8,6 +8,7 @@ var canvas;
 var ctx;
 
 function init() {
+    console.log("init");
   canvas = document.getElementById('maincanvas');
   ctx = canvas.getContext('2d');
 
@@ -22,6 +23,7 @@ function init() {
 }
 
 function update(timestamp) {
+    /*ryuno: 元ソース
   var delta = 0;
   if (lastTimestamp !== null) {
     delta = (timestamp -+ lastTimestamp) / 1000;
@@ -35,9 +37,19 @@ function update(timestamp) {
   if(mikanX > 700 || mikanX < -5)
   {
     a = a* -1;
-  }
+}*/
+    // ryuno: メインプロセス
 
-  render();
+    // マウス情報のアップデート
+    mouse.Process();
+
+    // シーンのアップデート
+    var input = game_scene.Process();
+    if(input !== null){
+        game_scene = input;
+    }
+
+    render.DrawRender();
 }
 
 //みかん箱の表示X軸座標位置
@@ -47,14 +59,27 @@ var a = 100;
 var lastTimestamp = null;
 
 function render() {
-  // 全体をクリア
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ryuno: レンダラスタック
+    console.log("render process");
+    this.stack = new RenderStack();
 
-  // 背景を表示
-  ctx.drawImage(Asset.images.back, 0, 0);
+    // 自己参照
+    let self = this;
 
-  // みかん箱を表示
-  ctx.drawImage(Asset.images.box, mikanX, 400);
+    // 描画関数
+    this.DrawRender = function(){
+        // 全体をクリア
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 描画
+        self.stack.Draw();
+    };
+
+
+    // 背景を表示
+    //ctx.drawImage(Asset.images.back, 0, 0);
+    // みかん箱を表示
+    //ctx.drawImage(Asset.images.box, mikanX, 400);
 }
 
 var Asset = {};
@@ -103,6 +128,7 @@ Asset._loadImage = function(asset, onLoad) {
 };
 
 
+
 // ryuno: マウスイベントを設定
 class Mouse {
     constructor(){
@@ -125,19 +151,33 @@ class Mouse {
 }
 var mouse = new Mouse();    // マウスのインスタンス
 
-// ryuno: メイン関数
-(function (){
-    // Sceneオブジェクト
-    var scene = new TitleScene();
+// Sceneオブジェクト
+var game_scene = new TitleScene();
 
-    while(true  /*今はtrueだが、エラー処理のゲッタなどを突っ込む予定*/){
-        // マウス情報のアップデート
-        mouse.Process();
 
-        // シーンのアップデート
-        var input = scene.Process();
-        if(input !== null){
-            scene = input;
-        }
+// ryuno: renderのラッパ
+class RenderStack{
+    constructor(){
+        this.stack = new Array(0);
     }
-}());
+    // 描画オブジェクトの追加
+    Add(_asset, _x, _y){
+        this.stack.push({asset: _asset, x: _x, y: _y});
+    }
+
+    // 描画(描画時にスタック情報は破棄される)
+    Draw(){
+        // スタックされてなかった場合は終了
+        if(this.stack.length === 0){
+            return;
+        }
+
+        // スタック内のオブジェクトを描画する
+        for(let i = 0; i < this.stack.length; i++){
+            ctx.drawImage(this.stack[i].asset, this.stack[i].x, this.stack[i].y);
+        }
+
+        // スタックの破棄
+        this.stack = new Array(0);
+    }
+}
