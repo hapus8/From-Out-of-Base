@@ -7,7 +7,7 @@ var canvas;
 var ctx;
 
 function init() {
-  canvas = document.getelementbyid('maincanvas');
+  canvas = document.getElementById('maincanvas');
   ctx = canvas.getContext('2d');
 
   canvas.width = SCREEN_WIDTH;
